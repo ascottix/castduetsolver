@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<!--
+    User interface for the Cast Duet solver
+    2018 by Alessandro Scotti
+
+    To free ring:
+    - go from U(3,1)-(4,1) to FREE, then
+    - go from D(3,1)-(3,0) to FREE.
+
+    To place free ring back:
+    - go from FREE to D(3,1)-(3,0), then
+    - go from FREE to U(3,1)-(4,1).
+
+    To place ring in the 4th (4 dots) position:
+    - go from D(3,1)-(3,0) to D(2,2)-(3,1), then
+    - go from U(3,1)-(4,1) to U(2,2)-(3,1).
+    Note that when doing the final steps of the last (right) ring it's necessary to move
+    the other ring back one step and then carefully align the ring gaps to allow the two
+    half rings to pass "thru" each other.
+-->
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html" charset="utf-8"/>
+    <title>Cast Duet Solver</title>
+    <!-- Link to the last version of BabylonJS -->
+    <script src="https://preview.babylonjs.com/babylon.js"></script>
+    <!-- -->
+    <script src="solver.js"></script>
+    <script src="renderer.js"></script>
+
+<style>
+body {
+    font-family: Helvetica, sans-serif;
+}
+
+input, button {
+	font-size: 1em;
+	border: 1px solid gray;
+	padding: 0.2em;
+	border-radius: 4px;
+}
+
+label {
+    font-size: 1em;
+    font-weight: bold;
+    display: block;
+}
+
+button {
+	cursor: pointer;
+}
+
+div.scene .caption {
+    font-size: 2em;
+}
+
+.hidden {
+    display: none;
+}
+
+canvas {
+    width: 480px;
+    height: 480px;
+    position: absolute;
+    top: -999px;
+    left: -999px;
+}
+
+canvas#render {
+    visibility: hidden;
+}
+
+.position-selector-container, .position-selector, .toolbar-container {
+    margin-top: 1em;
+}
+
+.scene {
+    float: left;
+    margin-right: 5em;
+    margin-bottom: 3em;
+}
+</style>
+
+<script>
+var renderer;
+
+var solver = initSolver();
+
+function createScene( position, caption ) {
+    var scene = document.createElement("li");
+    scene.className = "scene";
+
+    var cap = document.createElement("div");
+    cap.className = "caption";
+    cap.innerHTML = caption || "";
+
+    var sceneDataURL = renderer.renderPosition( position );
+
+    var img = document.createElement("img");
+    img.src = sceneDataURL;
+
+    scene.append(cap);
+    scene.append(img);
+
+    return scene;
+}
+
+function solve() {
+    var p1 = document.getElementById("source");
+
+    var p2 = document.getElementById("target");
+
+    var solution = solver.findSolution( p1.value, p2.value );
+
+    if( solution ) {
+        var scenesContainer = document.getElementById("scenes");
+        scenesContainer.innerHTML = "";
+        for( var i=0; i<solution.length; i++ ) {
+            var scene = createScene( solution[i], solution[i] );
+            scenesContainer.append(scene);
+        }
+    }
+}
+
+function setpos( id, position ) {
+    document.getElementById(id).value = position;
+    document.getElementById("scenes").innerHTML = "";
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+    renderer = initRenderer();
+});
+</script>
+
+</head>
+<body>
+    <h1>Cast Duet solver</h1>
+
+    <div class="instructions">
+        <p>
+        This is a solver for the Hanayama Cast Duet puzzle.
+        Select the start and target position, then push Solve to get the corresponding move sequence.
+        <a href="#" onclick="javascript:this.style.display='none';document.getElementById('full-instructions').style.display='block';void(0);">See full explanation.</a>
+        <div id="full-instructions" style="display:none">
+            <p>
+            Positions follow a simple convention and there are buttons for automatically setting a few predefined positions to be used as examples.
+            Here's a full explanation on how to setup any puzzle position.
+            <p>
+            First, place the puzzle with the "DUET" sign up, and the round corner in the bottom right.
+            The puzzle forms a 3x3 grid.
+            Each cell in the grid is assigned a coordinate of the form (column,row) where cell (1,1) is the bottom left cell, just above the "D" of "DUET",
+            and cell (3,1) is the round corner in the bottom right. The center cell is (2,2), the top right cell is (3,3).
+            <p>
+            The grid actually extends beyond the puzzle frame, because at least part of the ring can be there too.
+            So, it's possible to have coordinates like (1,0) for the "virtual" cell below the "D" of "DUET", and (4,1) for the cell just to the right of the round corner.
+            <p>
+            Because the puzzle frame is fixed, a position is described by the position of a half-ring and encoded as follow:
+            <ul>
+                <li>the letter "U" if the peg is in the upper part of the ring, otherwise the letter "D";
+                <li>the coordinates of the cell that contains the peg (the part of the ring with the gap);
+                <li>the coordinates of the cell that contains the solid part of the ring.
+            </ul>
+            <p>
+            The special notation "FREE" means that a half-ring is out of the frame.
+            <p>
+            This may look intimidating at first but it will become clear very quickly as you look at the provided examples and at the solution steps.
+            </div>
+            <p>
+            Note: this program works on a half-ring at a time, and does not consider interactions between the half-rings. You may have to figure out how to properly combine the two independent solutions.
+        </div>
+    </div>
+
+    <!-- Source and target selection -->
+    <div class="position-selector-container">
+        <div class="position-selector select-source">
+            <label for="source">Start position:<label>
+            <input id="source">
+            <button onclick="setpos('source','FREE')">Free</button>
+            <button onclick="setpos('source','U(3,1)-(4,0)')">Initial (right half)</button>
+            <button onclick="setpos('source','D(3,1)-(4,0)')">Initial (left half)</button>
+        </div>
+        <div class="position-selector select-target">
+            <label for="target">Goal:<label>
+            <input id="target">
+            <button onclick="setpos('target','FREE')">Free</button>
+            <button onclick="setpos('target','U(3,1)-(4,0)')">Initial (right half)</button>
+            <button onclick="setpos('target','D(3,1)-(4,0)')">Initial (left half)</button>
+            <button onclick="setpos('target','U(2,2)-(3,1)')">4 dots (right half)</button>
+            <button onclick="setpos('target','D(2,2)-(3,1)')">4 dots (left half)</button>
+        </div>
+    </div>
+    <div class="toolbar-container">
+        <button onclick="solve()">Solve!</button>
+    </div>
+
+    <!-- Dynamically populated with the solution scenes -->
+    <div class="solution-container">
+        <ol id="scenes"></ol>
+    </div>
+
+    <!-- Not visible: used for rendering -->
+    <canvas id="render"></canvas>
+</body>
+</html>
