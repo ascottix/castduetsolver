@@ -99,8 +99,8 @@ function createScene( position, caption ) {
     var img = document.createElement("img");
     img.src = sceneDataURL;
 
-    scene.append(cap);
-    scene.append(img);
+    scene.appendChild(cap);
+    scene.appendChild(img);
 
     return scene;
 }
@@ -117,7 +117,7 @@ function solve() {
         scenesContainer.innerHTML = "";
         for( var i=0; i<solution.length; i++ ) {
             var scene = createScene( solution[i], solution[i] );
-            scenesContainer.append(scene);
+            scenesContainer.appendChild(scene);
         }
     }
 }
