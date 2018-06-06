@@ -1,2 +1,2 @@
-# castduetsolver
-A solver for the Cast Duet puzzle
+# Cast Duet Solver
+This is a solver for the Hanayama Cast Duet puzzle.
