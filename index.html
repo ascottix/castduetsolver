@@ -18,12 +18,12 @@
     the other ring back one step and then carefully align the ring gaps to allow the two
     half rings to pass "thru" each other.
 -->
-<html>
+<html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html" charset="utf-8"/>
     <title>Cast Duet Solver</title>
-    <!-- Link to version 3 of BabylonJS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/babylonjs/3.3.0/babylon.js"></script>
+    <!-- Link to version 3.3 of BabylonJS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babylonjs/3.3.0/babylon.js" integrity="sha512-VCRlGbTLO3w8LZ1D6CuOSg4fcuYCssQCknDEoUAOeDT3zHqSoMWwfoydaCg85+uWivVgw7MmgydDjFUR69LFyg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <!-- -->
     <script src="solver.js"></script>
     <script src="renderer.js"></script>
@@ -174,14 +174,14 @@ window.addEventListener('DOMContentLoaded', function() {
     <div class="position-selector-container">
         <div class="position-selector select-source">
             <label for="source">Start position:<label>
-            <input id="source">
+            <input id="source" value="D(3,1)-(4,0)">
             <button onclick="setpos('source','FREE')">Free</button>
             <button onclick="setpos('source','U(3,1)-(4,0)')">Initial (right half)</button>
             <button onclick="setpos('source','D(3,1)-(4,0)')">Initial (left half)</button>
         </div>
         <div class="position-selector select-target">
             <label for="target">Goal:<label>
-            <input id="target">
+            <input id="target" value="FREE">
             <button onclick="setpos('target','FREE')">Free</button>
             <button onclick="setpos('target','U(3,1)-(4,0)')">Initial (right half)</button>
             <button onclick="setpos('target','D(3,1)-(4,0)')">Initial (left half)</button>
